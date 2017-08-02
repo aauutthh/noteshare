@@ -1,0 +1,235 @@
+diff -Naur nginx-release-0.1.0/auto/cc nginx-release-0.1.0_fix2/auto/cc
+--- nginx-release-0.1.0/auto/cc	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/auto/cc	2017-08-02 12:22:57.141791574 +0800
+@@ -60,7 +60,7 @@
+          #CFLAGS="$CFLAGS -Winline"
+ 
+          # we have a lot of the unused function arguments
+-         CFLAGS="$CFLAGS -Wno-unused"
++         CFLAGS="$CFLAGS -Wno-unused -Wno-unused-parameter -Wno-pointer-sign"
+ 
+          # stop on warning
+          CFLAGS="$CFLAGS -Werror"
+diff -Naur nginx-release-0.1.0/auto/configure nginx-release-0.1.0_fix2/auto/configure
+--- nginx-release-0.1.0/auto/configure	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/auto/configure	2017-08-02 12:24:50.081788031 +0800
+@@ -7,6 +7,7 @@
+ . auto/init
+ . auto/sources
+ 
++test -d back || mkdir back
+ test -d $OBJS || mkdir $OBJS
+ echo > $NGX_AUTO_CONFIG_H
+ 
+diff -Naur nginx-release-0.1.0/auto/feature nginx-release-0.1.0_fix2/auto/feature
+--- nginx-release-0.1.0/auto/feature	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/auto/feature	2017-08-02 12:22:57.141791574 +0800
+@@ -53,4 +53,6 @@
+     echo "---------" >> $NGX_ERR
+ fi
+ 
++base=`basename $NGX_AUTOTEST.c`
++cp $NGX_AUTOTEST.c back/HAVE_${feature}_$base
+ rm $NGX_AUTOTEST*
+diff -Naur nginx-release-0.1.0/auto/fmt/fmt nginx-release-0.1.0_fix2/auto/fmt/fmt
+--- nginx-release-0.1.0/auto/fmt/fmt	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/auto/fmt/fmt	2017-08-02 12:22:57.141791574 +0800
+@@ -44,6 +44,8 @@
+         fi
+     fi
+ 
++    base=`basename $NGX_AUTOTEST.c`
++    cp $NGX_AUTOTEST.c back/printf_$base
+     rm $NGX_AUTOTEST*
+ 
+     if [ $ngx_fmt != no ]; then
+diff -Naur nginx-release-0.1.0/auto/fmt/ptrfmt nginx-release-0.1.0_fix2/auto/fmt/ptrfmt
+--- nginx-release-0.1.0/auto/fmt/ptrfmt	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/auto/fmt/ptrfmt	2017-08-02 12:22:57.141791574 +0800
+@@ -33,6 +33,8 @@
+         fi
+     fi
+ 
++    base=`basename $NGX_AUTOTEST.c`
++    cp $NGX_AUTOTEST.c back/ptrfmt_${ngx_type}_$base
+     rm $NGX_AUTOTEST*
+ 
+     if [ $ngx_fmt != no ]; then
+diff -Naur nginx-release-0.1.0/auto/func nginx-release-0.1.0_fix2/auto/func
+--- nginx-release-0.1.0/auto/func	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/auto/func	2017-08-02 12:22:57.141791574 +0800
+@@ -40,4 +40,6 @@
+     echo "---------" >> $NGX_ERR
+ fi
+ 
++base=`basename $NGX_AUTOTEST.c`
++cp $NGX_AUTOTEST.c back/HAVE_${func}_$base
+ rm $NGX_AUTOTEST*
+diff -Naur nginx-release-0.1.0/auto/install nginx-release-0.1.0_fix2/auto/install
+--- nginx-release-0.1.0/auto/install	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/auto/install	2017-08-02 12:28:29.981781134 +0800
+@@ -25,7 +25,7 @@
+ 
+ 	test -d `dirname $HTTP_LOG_PATH` || mkdir -p `dirname $HTTP_LOG_PATH`
+ 
+-	test -d $PREFIX/html || cp -r html $PREFIX
++	test -d $PREFIX/html || cp -r docs/html $PREFIX
+ 
+ 	#test -d $PREFIX/temp || mkdir -p $PREFIX/temp
+ END
+@@ -51,7 +51,7 @@
+ 	\$(MAKE) -f $OBJS/Makefile install
+ 
+ clean:
+-	rm -rf Makefile $OBJS
++	rm -rf Makefile $OBJS back
+ 
+ upgrade:
+ 	$SBIN_PATH -t
+diff -Naur nginx-release-0.1.0/auto/types/sizeof nginx-release-0.1.0_fix2/auto/types/sizeof
+--- nginx-release-0.1.0/auto/types/sizeof	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/auto/types/sizeof	2017-08-02 12:22:57.141791574 +0800
+@@ -12,6 +12,7 @@
+ 
+ #include <sys/types.h>
+ #include <sys/time.h>
++#include <stdio.h>
+ $NGX_UNISTD_H
+ #include <signal.h>
+ #include <sys/resource.h>
+@@ -32,6 +33,8 @@
+     echo " $ngx_size bytes"
+ fi
+ 
++base=`basename $NGX_AUTOTEST.c`
++cp $NGX_AUTOTEST.c back/sizeof_${ngx_type}_$base
+ rm $NGX_AUTOTEST*
+ 
+ case $ngx_size in
+diff -Naur nginx-release-0.1.0/auto/unix nginx-release-0.1.0_fix2/auto/unix
+--- nginx-release-0.1.0/auto/unix	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/auto/unix	2017-08-02 12:22:57.141791574 +0800
+@@ -46,7 +46,7 @@
+ 
+ # printf() formats
+ 
+-CC_WARN=$CC_STRONG
++CC_WARN="$CC_STRONG -Wno-unused-but-set-variable -Wno-unused-parameter "
+ ngx_fmt_collect=no
+ 
+ ngx_fmt_name=OFF_T_FMT; ngx_type="off_t"; . auto/types/sizeof
+diff -Naur nginx-release-0.1.0/conf/nginx.conf nginx-release-0.1.0_fix2/conf/nginx.conf
+--- nginx-release-0.1.0/conf/nginx.conf	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/conf/nginx.conf	2017-08-02 12:26:58.289784010 +0800
+@@ -1,5 +1,5 @@
+ 
+-user  nobody;
++user  www-data; # Modify-Me if non-root user ,set user to the `whoami`
+ worker_processes  3;
+ 
+ #error_log  logs/error.log;
+@@ -14,13 +14,14 @@
+ http {
+     include       conf/mime.types;
+     default_type  application/octet-stream;
++    large_client_header_buffers 4 256; # the core have no default value we add it
+ 
+     sendfile  on;
+ 
+     #gzip  on;
+ 
+     server {
+-        listen  80;
++        listen  8384; # Modify-Me if non-root user , listen port do not set to <1000 
+ 
+         charset         on;
+         source_charset  koi8-r;
+diff -Naur nginx-release-0.1.0/ReadMe.txt nginx-release-0.1.0_fix2/ReadMe.txt
+--- nginx-release-0.1.0/ReadMe.txt	1970-01-01 08:00:00.000000000 +0800
++++ nginx-release-0.1.0_fix2/ReadMe.txt	2017-08-02 12:27:52.093782323 +0800
+@@ -0,0 +1,4 @@
++auto/configure --with-poll_module --prefix=/tmp
++make
++make install
++
+diff -Naur nginx-release-0.1.0/src/core/nginx.c nginx-release-0.1.0_fix2/src/core/nginx.c
+--- nginx-release-0.1.0/src/core/nginx.c	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/src/core/nginx.c	2017-08-02 12:22:57.141791574 +0800
+@@ -148,9 +148,9 @@
+         log->log_level = NGX_LOG_INFO;
+     }
+ 
+-    if (ngx_os_init(log) == NGX_ERROR) {
+-        return 1;
+-    }
++    //if (ngx_os_init(log) == NGX_ERROR) {
++    //    return 1;
++    //}
+ 
+     if (ngx_add_inherited_sockets(&init_cycle) == NGX_ERROR) {
+         return 1;
+diff -Naur nginx-release-0.1.0/src/http/ngx_http_core_module.c nginx-release-0.1.0_fix2/src/http/ngx_http_core_module.c
+--- nginx-release-0.1.0/src/http/ngx_http_core_module.c	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/src/http/ngx_http_core_module.c	2017-08-02 12:22:57.141791574 +0800
+@@ -1345,8 +1345,11 @@
+ 
+     if (conf->large_client_header_buffers.size < conf->connection_pool_size) {
+         ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
+-                           "the \"large_client_header_buffers\" size must be "
+-                           "equal to or bigger than \"connection_pool_size\"");
++                           "the \"large_client_header_buffers\" size [%d] must be "
++                           "equal to or bigger than \"connection_pool_size\" [%d]",
++                            conf->large_client_header_buffers.size , 
++                            conf->connection_pool_size
++                          );
+         return NGX_CONF_ERROR;
+     }
+ 
+diff -Naur nginx-release-0.1.0/src/os/unix/ngx_alloc.c nginx-release-0.1.0_fix2/src/os/unix/ngx_alloc.c
+--- nginx-release-0.1.0/src/os/unix/ngx_alloc.c	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/src/os/unix/ngx_alloc.c	2017-08-02 12:22:57.141791574 +0800
+@@ -45,7 +45,7 @@
+ 
+ void *ngx_memalign(size_t alignment, size_t size, ngx_log_t *log)
+ {
+-    void  *p;
++    void  *p=NULL;
+ 
+     if (posix_memalign(&p, alignment, size) == -1) {
+         ngx_log_error(NGX_LOG_EMERG, log, ngx_errno,
+diff -Naur nginx-release-0.1.0/src/os/unix/ngx_linux_config.h nginx-release-0.1.0_fix2/src/os/unix/ngx_linux_config.h
+--- nginx-release-0.1.0/src/os/unix/ngx_linux_config.h	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/src/os/unix/ngx_linux_config.h	2017-08-02 12:22:57.141791574 +0800
+@@ -46,6 +46,7 @@
+ #include <sys/ioctl.h>
+ #include <sys/sysctl.h>
+ #include <netinet/tcp.h>        /* TCP_CORK */
++#include <limits.h>             /* IOV_MAX */
+ 
+ 
+ #include <ngx_auto_config.h>
+diff -Naur nginx-release-0.1.0/src/os/unix/ngx_linux_init.c nginx-release-0.1.0_fix2/src/os/unix/ngx_linux_init.c
+--- nginx-release-0.1.0/src/os/unix/ngx_linux_init.c	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/src/os/unix/ngx_linux_init.c	2017-08-02 12:22:57.141791574 +0800
+@@ -30,7 +30,8 @@
+ 
+ ngx_int_t ngx_os_init(ngx_log_t *log)
+ {
+-    int  name[2], len;
++    int  name[2]; 
++    size_t len;
+ 
+     name[0] = CTL_KERN;
+     name[1] = KERN_OSTYPE;
+diff -Naur nginx-release-0.1.0/src/os/unix/ngx_writev_chain.c nginx-release-0.1.0_fix2/src/os/unix/ngx_writev_chain.c
+--- nginx-release-0.1.0/src/os/unix/ngx_writev_chain.c	2004-10-04 23:04:06.000000000 +0800
++++ nginx-release-0.1.0_fix2/src/os/unix/ngx_writev_chain.c	2017-08-02 12:22:57.141791574 +0800
+@@ -3,7 +3,7 @@
+  * Copyright (C) Igor Sysoev
+  */
+ 
+-
++#define __need_IOV_MAX 1
+ #include <ngx_config.h>
+ #include <ngx_core.h>
+ #include <ngx_event.h>
